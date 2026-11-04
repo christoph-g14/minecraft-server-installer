@@ -10,12 +10,12 @@ Ein Bash-Skript, das einen Minecraft-Java-Server auf Ubuntu einrichtet, beim Sys
 
 ## Installation
 
-1. `install_corrected.sh` auf den Ubuntu-Rechner übertragen.
+1. `install.sh` auf den Ubuntu-Rechner übertragen.
 2. Im Verzeichnis mit der Datei ausführen:
 
    ```bash
-   chmod +x install_corrected.sh
-   ./install_corrected.sh
+   chmod +x install.sh
+   ./install.sh
    ```
 
 3. Den Anweisungen folgen: Minecraft-EULA akzeptieren, **aktuelle Vanilla-Version** oder **direkte HTTPS-URL einer eigenen JAR** wählen, RAM (Standard **6 GB**, mindestens **4 GB**), Whitelist und optional einen ersten OP-Spieler festlegen.
@@ -64,4 +64,4 @@ sudo systemctl status minecraft.service minecraft-idle.service
 sudo journalctl -u minecraft.service -u minecraft-idle.service -n 100 --no-pager
 ```
 
-**Stand:** Dokumentation für `install_corrected.sh`. Die Einrichtung wurde nicht auf jeder Ubuntu- und Minecraft-Version getestet.
+**Stand:** Dokumentation für `install.sh`. Die Einrichtung wurde nicht auf jeder Ubuntu- und Minecraft-Version getestet.
