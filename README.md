@@ -11,6 +11,11 @@ Ein Bash-Skript, das einen Minecraft-Java-Server auf Ubuntu einrichtet, beim Sys
 ## Installation
 
 1. `install.sh` auf den Ubuntu-Rechner übertragen.
+
+   ```bash
+   wget https://raw.githubusercontent.com/christoph-g14/minecraft-server-installer/refs/heads/main/install.sh
+   ```
+
 2. Im Verzeichnis mit der Datei ausführen:
 
    ```bash
