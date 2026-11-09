@@ -292,7 +292,7 @@ chmod 755 "$SERVER_DIR/start.sh"
 sudo tee "/etc/systemd/system/$MC_SERVICE" >/dev/null <<EOF
 [Unit]
 Description=Minecraft Server
-Wants=network-online.target
+Wants=network-online.target minecraft-idle.service
 After=network-online.target
 
 [Service]
@@ -342,10 +342,9 @@ EOF
 sudo chmod 700 /usr/local/bin/minecraft-idle.sh
 sudo tee "/etc/systemd/system/$IDLE_SERVICE" >/dev/null <<'EOF'
 [Unit]
+# Unabhaengig vom Minecraft-Lebenszyklus: bleibt bei Server-Restarts aktiv.
 Description=Minecraft Idle Shutdown
-Requires=minecraft.service
 After=minecraft.service
-BindsTo=minecraft.service
 
 [Service]
 Type=simple
