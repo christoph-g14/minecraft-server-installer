@@ -146,10 +146,39 @@ if [[ "$INSTALL_TYPE" == auto ]]; then
 fi
 mv -- "$DOWNLOAD_TMP" "$SERVER_DIR/server.jar"
 DOWNLOAD_TMP=''
+# Log4j2: Nur die haeufigen RCON-Verbindungsnachrichten ausblenden.
+# Andere INFO-, WARN- und ERROR-Meldungen bleiben sichtbar.
+cat > "$SERVER_DIR/log4j2.xml" <<'LOG4J_CONFIG'
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+  <Appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+      <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level]: %msg%n"/>
+      <RegexFilter regex=".*Thread RCON Client .* (started|shutting down).*" onMatch="DENY" onMismatch="NEUTRAL"/>
+    </Console>
+    <RollingRandomAccessFile name="File" fileName="logs/latest.log"
+                             filePattern="logs/%d{yyyy-MM-dd}-%i.log.gz">
+      <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level]: %msg%n"/>
+      <RegexFilter regex=".*Thread RCON Client .* (started|shutting down).*" onMatch="DENY" onMismatch="NEUTRAL"/>
+      <Policies>
+        <TimeBasedTriggeringPolicy/>
+        <OnStartupTriggeringPolicy/>
+      </Policies>
+      <DefaultRolloverStrategy max="7"/>
+    </RollingRandomAccessFile>
+  </Appenders>
+  <Loggers>
+    <Root level="info">
+      <AppenderRef ref="Console"/>
+      <AppenderRef ref="File"/>
+    </Root>
+  </Loggers>
+</Configuration>
+LOG4J_CONFIG
 info 'Erzeuge Minecraft-Konfigurationsdateien ...'
 (
     cd "$SERVER_DIR" || exit 1
-    java -Xms1G -Xmx"${RAM_MAX}G" -jar server.jar nogui
+    java -Dlog4j.configurationFile=log4j2.xml -Xms1G -Xmx"${RAM_MAX}G" -jar server.jar nogui
 ) > "$SERVER_DIR/initial.log" 2>&1 || true
 [[ -f "$SERVER_DIR/server.properties" ]] || fail "server.properties wurde nicht erzeugt. Log: $SERVER_DIR/initial.log"
 printf 'eula=true\n' > "$SERVER_DIR/eula.txt"
@@ -186,7 +215,7 @@ rcon() { timeout 10 mcrcon -H 127.0.0.1 -P "$RCON_PORT" -p "$RCON_PASSWORD" "$1"
 if [[ "$OP_DEFINED" == 1 ]]; then
     section 'Ersten OP-Spieler einrichten'
     info 'Starte Server voruebergehend ...'
-    (cd "$SERVER_DIR" && exec java -Xms1G -Xmx"${RAM_MAX}G" -jar server.jar nogui) </dev/null > "$SERVER_DIR/first-start.log" 2>&1 &
+    (cd "$SERVER_DIR" && exec java -Dlog4j.configurationFile=log4j2.xml -Xms1G -Xmx"${RAM_MAX}G" -jar server.jar nogui) </dev/null > "$SERVER_DIR/first-start.log" 2>&1 &
     MC_PID=$!
     MC_READY=0
     for ((i=0; i<180; i++)); do
@@ -226,7 +255,7 @@ IDLE_SERVICE='minecraft-idle.service'
 cat > "$SERVER_DIR/run.sh" <<EOF
 #!/usr/bin/env bash
 cd "${SERVER_DIR}" || exit 1
-exec java -Xms1G -Xmx${RAM_MAX}G -jar server.jar nogui
+exec java -Dlog4j.configurationFile=log4j2.xml -Xms1G -Xmx${RAM_MAX}G -jar server.jar nogui
 EOF
 cat > "$SERVER_DIR/stop.sh" <<'EOF'
 #!/usr/bin/env bash
